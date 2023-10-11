@@ -1,0 +1,19 @@
+defmodule HelpdeskWeb.UserLive do
+  # In Phoenix v1.6+ apps, the line is typically: use MyAppWeb, :live_view
+  use Phoenix.LiveView
+
+  def render(assigns) do
+    dbg(tickets)
+    ~H"""
+    """
+  end
+
+  def mount(_params, _session, socket) do
+    tickets = Helpdesk.Support.Ticket.read!()
+    {:ok, assign(socket, :tickets, tickets)}
+  end
+
+  # def handle_event("inc_temperature", _params, socket) do
+  #   {:noreply, update(socket, :temperature, &(&1 + 1))}
+  # end
+end
