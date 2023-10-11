@@ -12,6 +12,8 @@ config :helpdesk,
 
 config :helpdesk, ash_apis: [Helpdesk.Support, Helpdesk.Accounts]
 
+config :ash, :use_all_identifiers_in_manage_relationships?, false
+
 # Configures the endpoint
 config :helpdesk, HelpdeskWeb.Endpoint,
   url: [host: "localhost"],

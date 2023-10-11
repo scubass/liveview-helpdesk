@@ -19,6 +19,10 @@ defmodule Helpdesk.Accounts.User do
     strategies do
       password :password do
         identity_field(:email)
+
+        resettable do
+          sender Helpdesk.Accounts.User.Senders.SendPasswordResetEmail
+        end
       end
     end
 

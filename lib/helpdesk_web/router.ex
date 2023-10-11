@@ -1,6 +1,8 @@
 defmodule HelpdeskWeb.Router do
   use HelpdeskWeb, :router
 
+  use AshAuthentication.Phoenix.Router
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -12,6 +14,7 @@ defmodule HelpdeskWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :load_from_bearer
   end
 
   scope "/", HelpdeskWeb do
@@ -19,6 +22,11 @@ defmodule HelpdeskWeb.Router do
 
     get "/", PageController, :home
     live "/tickets", TicketsLive
+
+    sign_in_route()
+    sign_out_route AuthController
+    auth_routes_for Helpdesk.Accounts.User, to: AuthController
+    reset_route []
   end
 
   # Other scopes may use custom stacks.
