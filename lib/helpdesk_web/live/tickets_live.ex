@@ -2,7 +2,7 @@ defmodule HelpdeskWeb.TicketsLive do
   alias Helpdesk.Support.Ticket
   # In Phoenix v1.6+ apps, the line is typically: use MyAppWeb, :live_view
   use Phoenix.LiveView
-  import HelpdeskWeb.CoreComponents
+  import PetalComponents.{Button, Field, Typography}
 
   def render(assigns) do
     ~H"""
@@ -14,6 +14,11 @@ defmodule HelpdeskWeb.TicketsLive do
         <h1>Status: <%= ticket.status %></h1>
         <h1>Subject: <%= ticket.subject %></h1>
         <h1>User Id:<%= ticket.user_id %></h1>
+        <.h1>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+            Esto es especial o algo asi
+          </span>
+        </.h1>
         <.button phx-value-ticket-id={ticket.id} phx-click="delete_todo">Delete</.button>
         <.button
           class={"#{if ticket.status == :open do "text-red-600" else "text-green-600" end}"}
@@ -29,7 +34,7 @@ defmodule HelpdeskWeb.TicketsLive do
       </div>
     </.async_result>
     <.form for={@form} phx-submit="open_todo">
-      <.input type="text" field={@form[:subject]} label="Subject" />
+      <.field type="text" field={@form[:subject]} label="Subject" />
       <.button>Save</.button>
     </.form>
     """
@@ -51,21 +56,33 @@ defmodule HelpdeskWeb.TicketsLive do
 
   def handle_event("open_todo", %{"form" => %{"subject" => subject}}, socket) do
     Ticket.open(subject)
-    {:noreply, assign(socket, :tickets, Ticket.read!())}
+
+    {:noreply,
+     socket
+     |> assign_async(:tickets, fn -> get_tickets() end)}
   end
 
   def handle_event("delete_todo", %{"ticket-id" => post_id}, socket) do
     post_id |> Ticket.get_by_id!() |> Ticket.destroy!()
-    {:noreply, assign(socket, :tickets, Ticket.read!())}
+
+    {:noreply,
+     socket
+     |> assign_async(:tickets, fn -> get_tickets() end)}
   end
 
   def handle_event("close_todo", %{"ticket-id" => post_id}, socket) do
     post_id |> Ticket.get_by_id!() |> Ticket.close()
-    {:noreply, assign(socket, :tickets, Ticket.read!())}
+
+    {:noreply,
+     socket
+     |> assign_async(:tickets, fn -> get_tickets() end)}
   end
 
   def handle_event("reopen_todo", %{"ticket-id" => post_id}, socket) do
     post_id |> Ticket.get_by_id!() |> Ticket.reopen()
-    {:noreply, assign(socket, :tickets, Ticket.read!())}
+    # {:noreply, assign(socket, :tickets, Ticket.read!())}
+    {:noreply,
+     socket
+     |> assign_async(:tickets, fn -> get_tickets() end)}
   end
 end

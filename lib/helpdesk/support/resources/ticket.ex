@@ -12,6 +12,7 @@ defmodule Helpdesk.Support.Ticket do
     define :close, args: []
     define :reopen, args: []
     define :get_by_id, args: [:id], action: :by_id
+    define :get_by_user_id, args: [:user_id], action: :by_user_id
     define :read
     define :update
     define :destroy
@@ -39,6 +40,12 @@ defmodule Helpdesk.Support.Ticket do
 
       get? true
       filter expr(id == ^arg(:id))
+    end
+
+    read :by_user_id do
+      argument :user_id, :uuid, allow_nil?: false
+
+      filter expr(user_id == ^arg(:user_id))
     end
 
     update :assign do

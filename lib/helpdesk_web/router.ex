@@ -22,6 +22,18 @@ defmodule HelpdeskWeb.Router do
 
     get "/", PageController, :home
     live "/tickets", TicketsLive
+    live "/hello", HelloLive
+    live "/images", ImagesLive
+
+    ash_authentication_live_session :authentication_required,
+      on_mount: {HelpdeskWeb.LiveUserAuth, :live_user_required} do
+      live "/protected", HelloAuthLive
+    end
+
+    ash_authentication_live_session :authentication_optional,
+      on_mount: {HelpdeskWeb.LiveUserAuth, :live_user_optional} do
+      live "/optional", ProjectLive
+    end
 
     sign_in_route()
     sign_out_route AuthController

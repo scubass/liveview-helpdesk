@@ -19,7 +19,8 @@ defmodule Helpdesk.MixProject do
   def application do
     [
       mod: {Helpdesk.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools],
+      env: [token_signing_secret: "secret"]
     ]
   end
 
@@ -53,7 +54,8 @@ defmodule Helpdesk.MixProject do
       {:ash, "~> 2.15.1"},
       {:ash_postgres, "~> 1.3"},
       {:ash_authentication, "~> 3.11.15"},
-      {:ash_authentication_phoenix, "~> 1.8"}
+      {:ash_authentication_phoenix, "~> 1.8"},
+      {:petal_components, "~> 1.0"},
     ]
   end
 

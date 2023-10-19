@@ -2,6 +2,7 @@
 // https://tailwindcss.com/docs/configuration
 
 const plugin = require("tailwindcss/plugin");
+const colors = require("tailwindcss/colors");
 const fs = require("fs");
 const path = require("path");
 
@@ -11,11 +12,21 @@ module.exports = {
     "../lib/*_web.ex",
     "../lib/*_web/**/*.*ex",
     "../deps/ash_authentication_phoenix/**/*.ex",
+    "../deps/petal_components/**/*.ex",
   ],
   theme: {
     extend: {
       colors: {
         brand: "#FD4F00",
+        primary: colors.blue,
+        secondary: colors.pink,
+        success: colors.green,
+        danger: colors.red,
+        warning: colors.yellow,
+        info: colors.sky,
+
+        // Options: slate, gray, zinc, neutral, stone
+        gray: colors.gray,
       },
     },
   },
