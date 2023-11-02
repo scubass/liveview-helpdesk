@@ -16,10 +16,19 @@ defmodule Helpdesk.Support.Ticket do
     define :read
     define :update
     define :destroy
+    define :open_and_assign, args: [:subject, :user_id]
   end
 
   actions do
     defaults [:read, :update, :destroy]
+
+    create :open_and_assign do
+      accept [:subject]
+
+      argument :user_id, :uuid, allow_nil?: false
+
+      change manage_relationship(:user_id, :user, type: :append_and_remove)
+    end
 
     create :open do
       accept [:subject]
@@ -68,7 +77,10 @@ defmodule Helpdesk.Support.Ticket do
       default :open
     end
 
-    attribute :subject, :string, allow_nil?: false
+    attribute :subject, :string do
+      constraints min_length: 5,
+                  allow_empty?: false
+    end
 
     create_timestamp :created_at
     update_timestamp :updated_at

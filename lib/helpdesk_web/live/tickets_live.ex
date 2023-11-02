@@ -1,6 +1,5 @@
 defmodule HelpdeskWeb.TicketsLive do
   alias Helpdesk.Support.Ticket
-  # In Phoenix v1.6+ apps, the line is typically: use MyAppWeb, :live_view
   use Phoenix.LiveView
   import PetalComponents.{Button, Field, Typography}
 
@@ -19,11 +18,11 @@ defmodule HelpdeskWeb.TicketsLive do
             Esto es especial o algo asi
           </span>
         </.h1>
-        <.button phx-value-ticket-id={ticket.id} phx-click="delete_todo">Delete</.button>
+        <.button phx-value-ticket-id={ticket.id} phx-click="delete_ticket">Delete</.button>
         <.button
           class={"#{if ticket.status == :open do "text-red-600" else "text-green-600" end}"}
           phx-value-ticket-id={ticket.id}
-          phx-click={"#{ if ticket.status == :open do "close_todo" else "reopen_todo" end}"}
+          phx-click={"#{ if ticket.status == :open do "close_ticket" else "reopen_ticket" end}"}
         >
           <%= if ticket.status == :open do %>
             Close
@@ -33,17 +32,29 @@ defmodule HelpdeskWeb.TicketsLive do
         </.button>
       </div>
     </.async_result>
-    <.form for={@form} phx-submit="open_todo">
+    <.form for={@form} phx-submit="open_ticket" phx-change="validate" id={@random_number}>
       <.field type="text" field={@form[:subject]} label="Subject" />
       <.button>Save</.button>
     </.form>
+    <!-- <.form for={@form} phx-submit="open_ticket" phx-change="validate"> -->
+    <!--   <.field type="text" field={@form[:subject]} label="Subject Ash" /> -->
+    <!--   <.button>Save</.button> -->
+    <!-- </.form> -->
     """
   end
 
   def mount(_params, _session, socket) do
+    dbg(AshPhoenix.Form.for_create(Ticket, :open_and_assign))
+
     {:ok,
      socket
      |> assign(form: AshPhoenix.Form.for_create(Ticket, :open) |> to_form)
+     |> assign(random_number: :rand.uniform(1000) |> Integer.to_string())
+     # |> assign(
+     #   form:
+     #     AshPhoenix.Form.for_create(Ticket, :open, api: Helpdesk.Support, forms: [auto?: true])
+     #     |> to_form()
+     # )
      |> assign_async(:tickets, fn -> get_tickets() end)}
   end
 
@@ -54,15 +65,20 @@ defmodule HelpdeskWeb.TicketsLive do
     end
   end
 
-  def handle_event("open_todo", %{"form" => %{"subject" => subject}}, socket) do
-    Ticket.open(subject)
+  def handle_event("open_ticket", %{"form" => %{"subject" => subject}}, socket) do
+    case Ticket.open(subject) do
+      {:ok, _new_todo} ->
+        {:noreply,
+         socket
+         |> assign(form: AshPhoenix.Form.for_create(Ticket, :open) |> to_form())
+         |> assign_async(:tickets, fn -> get_tickets() end)}
 
-    {:noreply,
-     socket
-     |> assign_async(:tickets, fn -> get_tickets() end)}
+      {:error, form} ->
+        {:noreply, assign(socket, form: form)}
+    end
   end
 
-  def handle_event("delete_todo", %{"ticket-id" => post_id}, socket) do
+  def handle_event("delete_ticket", %{"ticket-id" => post_id}, socket) do
     post_id |> Ticket.get_by_id!() |> Ticket.destroy!()
 
     {:noreply,
@@ -70,7 +86,7 @@ defmodule HelpdeskWeb.TicketsLive do
      |> assign_async(:tickets, fn -> get_tickets() end)}
   end
 
-  def handle_event("close_todo", %{"ticket-id" => post_id}, socket) do
+  def handle_event("close_ticket", %{"ticket-id" => post_id}, socket) do
     post_id |> Ticket.get_by_id!() |> Ticket.close()
 
     {:noreply,
@@ -78,11 +94,35 @@ defmodule HelpdeskWeb.TicketsLive do
      |> assign_async(:tickets, fn -> get_tickets() end)}
   end
 
-  def handle_event("reopen_todo", %{"ticket-id" => post_id}, socket) do
+  def handle_event("reopen_ticket", %{"ticket-id" => post_id}, socket) do
     post_id |> Ticket.get_by_id!() |> Ticket.reopen()
     # {:noreply, assign(socket, :tickets, Ticket.read!())}
     {:noreply,
      socket
      |> assign_async(:tickets, fn -> get_tickets() end)}
   end
+
+  def handle_event("validate", %{"form" => params}, socket) do
+    form = AshPhoenix.Form.validate(socket.assigns.form, params)
+    dbg(form)
+    {:noreply, assign(socket, form: form)}
+  end
+
+  # def handle_event("validate", %{"form" => params}, socket) do
+  #   form = AshPhoenix.Form.validate(socket.assigns.form, params)
+  #   {:noreply, assign(socket, form: form)}
+  # end
+  #
+  # def handle_event("open_ticket_ash", %{"form" => params}, socket) do
+  #   case AshPhoenix.Form.submit(socket.assigns.form, params: params) do
+  #     {:ok, ticket} ->
+  #       {:noreply,
+  #        socket
+  #        |> put_flash(:info, "Created Ticket, id: #{ticket.id}")
+  #        |> assign_async(:tickets, fn -> get_tickets() end)}
+  #
+  #     {:error, form} ->
+  #       {:noreply, assign(socket, ash_form: form)}
+  #   end
+  # end
 end

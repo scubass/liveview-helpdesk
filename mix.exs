@@ -52,10 +52,12 @@ defmodule Helpdesk.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:ash, "~> 2.15.1"},
+      {:ash_phoenix, "~> 1.2"},
       {:ash_postgres, "~> 1.3"},
       {:ash_authentication, "~> 3.11.15"},
       {:ash_authentication_phoenix, "~> 1.8"},
       {:petal_components, "~> 1.0"},
+      {:bandit, "~> 1.0"}
     ]
   end
 

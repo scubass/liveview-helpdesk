@@ -28,6 +28,7 @@ defmodule HelpdeskWeb.Router do
     ash_authentication_live_session :authentication_required,
       on_mount: {HelpdeskWeb.LiveUserAuth, :live_user_required} do
       live "/protected", HelloAuthLive
+      live "/dashboard", DashboardLive
     end
 
     ash_authentication_live_session :authentication_optional,
